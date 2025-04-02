@@ -1,0 +1,167 @@
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.8.xsd">
+
+    <changeSet id="1" author="Hailey Sanchez" runOnChange="false">
+        <createTable tableName="participantes">
+            <column name="id" type="INT" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="nombres" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="apellidos" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="tipo_documento" type="ENUM('Cedula de Ciudadania', 'Tarjeta de Identidad', 'Pasaporte')">
+                <constraints nullable="false"/>
+            </column>
+            <column name="numero_documento" type="VARCHAR(50)">
+                <constraints unique="true" nullable="false"/>
+            </column>
+            <column name="fecha_nacimiento" type="DATE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="genero" type="ENUM('Masculino', 'Femenino', 'Otro')">
+                <constraints nullable="false"/>
+            </column>
+            <column name="correo_electronico" type="VARCHAR(100)">
+                <constraints unique="true" nullable="false"/>
+            </column>
+            <column name="numero_telefono" type="VARCHAR(10)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="2" author="Hailey Sanchez" runOnChange="false">
+        <createTable tableName="kits">
+            <column name="id" type="INT" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="titulo" type="ENUM('Basico', 'Premium')">
+                <constraints nullable="false"/>
+            </column>
+            <column name="precio" type="DECIMAL(10,2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="imagen" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="descripcion" type="TEXT"/>
+            <column name="stock" type="INT">
+                <constraints nullable="false" checkConstraint="stock >= 0"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="3" author="Hailey Sanchez" runOnChange="false">
+        <createTable tableName="ordenes">
+            <column name="id" type="INT" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="participante_id" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="total" type="DECIMAL(10,2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="fecha_orden" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="ordenes" baseColumnNames="participante_id"
+                                 constraintName="fk_ordenes_participantes"
+                                 referencedTableName="participantes" referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
+    </changeSet>
+
+    <changeSet id="4" author="Hailey Sanchez" runOnChange="false">
+        <createTable tableName="entradas">
+            <column name="id" type="INT" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="participante_id" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="kit_id" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="valor" type="DECIMAL(10,2)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="entradas" baseColumnNames="participante_id"
+                                 constraintName="fk_entradas_participantes"
+                                 referencedTableName="participantes" referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
+        <addForeignKeyConstraint baseTableName="entradas" baseColumnNames="kit_id"
+                                 constraintName="fk_entradas_kits"
+                                 referencedTableName="kits" referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
+    </changeSet>
+
+    <changeSet id="5" author="Hailey Sanchez" runOnChange="false">
+        <createTable tableName="ordenes_entradas">
+            <column name="orden_id" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="entrada_id" type="INT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addPrimaryKey tableName="ordenes_entradas" columnNames="orden_id, entrada_id"/>
+        <addForeignKeyConstraint baseTableName="ordenes_entradas" baseColumnNames="orden_id"
+                                 constraintName="fk_ordenes_entradas_ordenes"
+                                 referencedTableName="ordenes" referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
+        <addForeignKeyConstraint baseTableName="ordenes_entradas" baseColumnNames="entrada_id"
+                                 constraintName="fk_ordenes_entradas_entradas"
+                                 referencedTableName="entradas" referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
+    </changeSet>
+
+    <changeSet id="6" author="Hailey Sanchez" runOnChange="false">
+        <createTable tableName="users">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="name" type="varchar(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="email" type="varchar(100)">
+                <constraints unique="true" nullable="false"/>
+            </column>
+            <column name="password" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="role" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="7" author="Hailey Sanchez" runOnChange="false" runAlways="false">
+        <insert tableName="users">
+            <column name="name" value="Hailey Sanchez"/>
+            <column name="email" value="haileysofia2002@gmail.com"/>
+            <column name="password" value="$2a$10$.TVmUnBw3ijbUszJsAaZ6O9zHq5U57B8eEAOqV9SGevZ4EawO34jG"/>
+            <column name="role" value="ADMIN"/>
+        </insert>
+
+        <insert tableName="users">
+            <column name="name" value="Bob Smith"/>
+            <column name="email" value="bob@example.com"/>
+            <column name="password" value="$2a$10$.TVmUnBw3ijbUszJsAaZ6O9zHq5U57B8eEAOqV9SGevZ4EawO34jG"/>
+            <column name="role" value="USER"/>
+        </insert>
+
+        <insert tableName="users">
+            <column name="name" value="Charlie Brown"/>
+            <column name="email" value="charlie@example.com"/>
+            <column name="password" value="$2a$10$.TVmUnBw3ijbUszJsAaZ6O9zHq5U57B8eEAOqV9SGevZ4EawO34jG"/>
+            <column name="role" value="USER"/>
+        </insert>
+    </changeSet>
+
+</databaseChangeLog>
