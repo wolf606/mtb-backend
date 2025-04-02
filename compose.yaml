@@ -20,6 +20,7 @@ services:
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/mtb
       MYSQL_ROOT_PASSWORD: vienna
+      ADMIN_PASS: the_pass
     ports:
       - "8080:8080"
     depends_on:
